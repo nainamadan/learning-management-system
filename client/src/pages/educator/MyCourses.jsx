@@ -1,31 +1,57 @@
 import React, { useEffect, useState, useContext } from "react";
+import axios from "axios";
 import { AppContext } from "../../context/AddContext";
 import Loading from "../../components/student/Loading";
 
 const MyCourses = () => {
-  const { currency, allCourses } = useContext(AppContext);
+  const { currency, backendUrl, getToken } = useContext(AppContext);
+
   const [courses, setCourses] = useState(null);
 
+  // 🔥 FETCH REAL COURSES FROM BACKEND
   const fetchEducatorCourses = async () => {
-    setCourses(allCourses);
+    try {
+      const token = await getToken();
+
+      const { data } = await axios.get(
+        backendUrl + "/api/educator/courses",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (data.success) {
+        setCourses(data.courses);
+      } else {
+        setCourses([]);
+      }
+    } catch (error) {
+      console.log(error);
+      setCourses([]);
+    }
   };
 
   useEffect(() => {
     fetchEducatorCourses();
-  }, [allCourses]);
+  }, []);
 
   if (!courses) return <Loading />;
 
   return (
     <div className="mt-6 px-3 sm:px-6 space-y-6">
+
       {/* Heading */}
       <h1 className="text-lg sm:text-xl font-semibold">
         My Courses
       </h1>
 
-      {/* Table Wrapper */}
+      {/* Table */}
       <div className="bg-white border rounded-xl p-4 sm:p-6 overflow-x-auto">
+
         <table className="min-w-[700px] w-full text-sm">
+
           <thead className="bg-gray-50 text-gray-600">
             <tr>
               <th className="text-left px-4 py-3">Course</th>
@@ -36,52 +62,61 @@ const MyCourses = () => {
           </thead>
 
           <tbody>
+
             {courses.map((course) => {
-              const earnings = Math.floor(
-                course.enrolledStudents.length *
-                  (course.coursePrice -
-                    (course.discount * course.coursePrice) / 100)
-              );
+
+              const priceAfterDiscount =
+                course.coursePrice -
+                (course.coursePrice * course.discount) / 100;
+
+              const earnings =
+                (course.enrolledStudents?.length || 0) *
+                priceAfterDiscount;
 
               return (
                 <tr
                   key={course._id}
-                  className="border-b last:border-none hover:bg-gray-50 transition"
+                  className="border-b hover:bg-gray-50 transition"
                 >
-                  {/* Course */}
+
+                  {/* COURSE */}
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-3 min-w-[220px]">
+                    <div className="flex items-center gap-3">
                       <img
                         src={course.courseThumbnail}
-                        alt={course.courseTitle}
-                        className="w-14 h-9 rounded object-cover flex-shrink-0"
+                        className="w-14 h-9 object-cover rounded"
+                        alt="course"
                       />
-                      <span className="font-medium text-gray-700 line-clamp-2">
+                      <span className="font-medium text-gray-700">
                         {course.courseTitle}
                       </span>
                     </div>
                   </td>
 
-                  {/* Earnings */}
+                  {/* EARNINGS */}
                   <td className="px-4 py-3 font-medium">
                     {currency}
-                    {earnings}
+                    {earnings.toFixed(0)}
                   </td>
 
-                  {/* Students */}
+                  {/* STUDENTS */}
                   <td className="px-4 py-3">
-                    {course.enrolledStudents.length}
+                    {course.enrolledStudents?.length || 0}
                   </td>
 
-                  {/* Date */}
-                  <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
+                  {/* DATE */}
+                  <td className="px-4 py-3 text-gray-600">
                     {new Date(course.createdAt).toLocaleDateString()}
                   </td>
+
                 </tr>
               );
             })}
+
           </tbody>
+
         </table>
+
       </div>
     </div>
   );

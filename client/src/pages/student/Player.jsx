@@ -8,8 +8,6 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const Player = () => {
-
-  // ✅ SAFE CONTEXT
   const context = useContext(AppContext);
 
   if (!context) {
@@ -33,7 +31,25 @@ const Player = () => {
   const [progressData, setprogressData] = useState(null);
   const [initialRating, setinitialRating] = useState(0);
 
-  // ✅ WAIT FOR USER + COURSES
+  // ✅ SAFE YouTube ID extractor
+  const getVideoId = (url) => {
+    try {
+      const u = new URL(url);
+
+      if (u.hostname.includes("youtube.com")) {
+        return u.searchParams.get("v");
+      }
+
+      if (u.hostname.includes("youtu.be")) {
+        return u.pathname.slice(1);
+      }
+
+      return null;
+    } catch {
+      return null;
+    }
+  };
+
   useEffect(() => {
     if (!userData || !enrolledCourses?.length) return;
 
@@ -52,14 +68,12 @@ const Player = () => {
     }
   }, [enrolledCourses, courseId, userData]);
 
-  // ✅ GET COURSE PROGRESS ONLY WHEN USER READY
   useEffect(() => {
     if (courseId && userData) {
       getCourseProgress();
     }
   }, [courseId, userData]);
 
-  // ✅ MARK LECTURE COMPLETE
   const marklectureAsCompleted = async (lectureId) => {
     try {
       const token = await getToken();
@@ -81,7 +95,6 @@ const Player = () => {
     }
   };
 
-  // ✅ GET PROGRESS
   const getCourseProgress = async () => {
     try {
       const token = await getToken();
@@ -99,7 +112,6 @@ const Player = () => {
     }
   };
 
-  // ✅ RATE COURSE
   const handleRate = async (rating) => {
     try {
       const token = await getToken();
@@ -127,7 +139,6 @@ const Player = () => {
     }));
   };
 
-  // ✅ LOADING STATES
   if (!userData) {
     return <div className="p-10 text-center">Loading user...</div>;
   }
@@ -158,13 +169,16 @@ const Player = () => {
 
               {openSection[index] &&
                 chapter.chapterContent?.map((lecture, i) => (
-                  <div key={i} className="flex justify-between px-6 py-2">
+                  <div
+                    key={i}
+                    className="flex justify-between px-6 py-2"
+                  >
                     <p>{lecture.lectureTitle}</p>
 
                     <span
                       onClick={() =>
                         setplayerdata({
-                          videoId: lecture.lectureUrl.split("/").pop(),
+                          videoId: getVideoId(lecture.lectureUrl), // ✅ FIXED
                           lectureTitle: lecture.lectureTitle,
                           chapter: index + 1,
                           lecture: i + 1,
@@ -187,34 +201,54 @@ const Player = () => {
         </div>
 
         {/* RIGHT SIDE */}
-        <div className="lg:w-1/2 w-full">
-          {playerdata ? (
-            <>
-              <YouTube
-                videoId={playerdata.videoId}
-                opts={{ width: "100%", height: "400" }}
-              />
+        <div className="lg:w-[420px] w-full">
 
-              <button
-                onClick={() =>
-                  marklectureAsCompleted(playerdata.lectureId)
-                }
-                className="mt-3 px-4 py-2 bg-blue-600 text-white rounded"
-              >
-                {progressData?.isLectureCompleted?.includes(
-                  playerdata.lectureId
-                )
-                  ? "Completed"
-                  : "Mark Complete"}
-              </button>
-            </>
+          {playerdata?.videoId ? (
+            <div className="bg-white border rounded-lg overflow-hidden shadow-sm">
+
+              {/* VIDEO */}
+              <div className="w-full aspect-video">
+                <YouTube
+                  videoId={playerdata.videoId}
+                  opts={{
+                    width: "100%",
+                    height: "100%",
+                    playerVars: { autoplay: 1 },
+                  }}
+                />
+              </div>
+
+              <div className="p-3">
+                <button
+                  onClick={() =>
+                    marklectureAsCompleted(playerdata.lectureId)
+                  }
+                  className="w-full px-4 py-2 bg-blue-600 text-white rounded"
+                >
+                  {progressData?.lectureCompleted?.includes(
+                    playerdata.lectureId
+                  )
+                    ? "Completed"
+                    : "Mark Complete"}
+                </button>
+              </div>
+            </div>
           ) : (
-            <img
-              src={coursedata?.courseThumbnail}
-              alt=""
-              className="w-full"
-            />
+            <div className="bg-white border rounded-lg overflow-hidden">
+              <div className="w-full h-44 bg-gray-100 flex items-center justify-center overflow-hidden">
+  <img
+    src={coursedata?.courseThumbnail}
+    alt="course"
+    className="max-w-full max-h-full object-contain"
+  />
+</div>
+
+              <div className="p-3 text-sm text-gray-600">
+                Select a lecture to start learning
+              </div>
+            </div>
           )}
+
         </div>
       </div>
 

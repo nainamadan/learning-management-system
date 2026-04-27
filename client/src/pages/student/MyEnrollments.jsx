@@ -23,24 +23,36 @@ const[progressArray,setprogressarray]=useState([
 // onclick on ongoing navigate
 
 // fn to give course progress data
-const getCourseProgress=async()=>{
+const getCourseProgress = async () => {
   try {
-    const token=await getToken()
-    // muultiple courses
-const tempProgressArray=await Promise.all(
-  enrolledCourses.map(async(course)=>{
-const {data}=await axios.post(` ${backendUrl}/api/user/get-course-progress`,{courseId:course._id},{headers:{Authorization:`Bearer ${token}`}})
-let totalLectures=countlectures(course)
-const lectureCompleted=data.progressData ?data.progressData.lectureCompleted.length:0
-return {totalLectures,lectureCompleted}
-  })
+    const token = await getToken();
 
-)
-setprogressarray(tempProgressArray)
+    const tempProgressArray = await Promise.all(
+      enrolledCourses.map(async (course) => {
+        const { data } = await axios.post(
+          `${backendUrl}/api/user/get-course-progress`,
+          { courseId: course._id },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        let totalLectures = countlectures(course);
+        let lectureCompleted = data.progressData
+          ? data.progressData.lectureCompleted.length
+          : 0;
+
+        return { totalLectures, lectureCompleted };
+      })
+    );
+
+    setprogressarray(tempProgressArray);
   } catch (error) {
-    toast.error(error.message)
+    toast.error(error.message);
   }
-}
+};
 useEffect(()=>{
 if(userData){
   fetchenrolledcourse()

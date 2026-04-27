@@ -99,7 +99,7 @@ export const purchaseCourse = async (req, res) => {
   try {
     const { courseId } = req.body;
     const { origin } = req.headers;
-    const { userId } = req.auth();
+    const { userId } = req.auth;
 
     const userData = await User.findById(userId);
     const courseData = await Course.findById(courseId);
@@ -116,6 +116,11 @@ export const purchaseCourse = async (req, res) => {
       courseId: courseData._id,
       userId: userData._id,
       amount: amount.toFixed(2),
+    });
+
+    // ⭐⭐⭐ IMPORTANT FIX (ENROLLMENT SAVE)
+    await User.findByIdAndUpdate(userId, {
+      $addToSet: { enrolledCourses: courseId },
     });
 
     const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);

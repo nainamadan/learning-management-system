@@ -1,143 +1,53 @@
 import mongoose from "mongoose";
 
-const { Schema } = mongoose;
-
-/* ===============================
-   Lecture Schema
-=================================*/
-const lectureSchema = new Schema(
+const lectureSchema = new mongoose.Schema(
   {
-    lectureId: {
-      type: String,
-      required: true
-    },
-    lectureTitle: {
-      type: String,
-      required: true,
-      trim: true
-    },
-    lectureDuration: {
-      type: Number,
-      required: true,
-      min: 0
-    },
-    lectureUrl: {
-      type: String,
-      required: true
-    },
-    isPreviewFree: {
-      type: Boolean,
-      default: false
-    },
-    lectureOrder: {
-      type: Number,
-      required: true
-    }
+    lectureId: String,
+    lectureTitle: String,
+    lectureDuration: Number,
+    lectureUrl: String,
+    isPreviewFree: Boolean,
+    lectureOrder: Number,
   },
   { _id: false }
 );
 
-/* ===============================
-   Chapter Schema
-=================================*/
-const chapterSchema = new Schema(
+const chapterSchema = new mongoose.Schema(
   {
-    chapterId: {
-      type: String,
-      required: true
-    },
-    chapterOrder: {
-      type: Number,
-      required: true
-    },
-    chapterTitle: {
-      type: String,
-      required: true,
-      trim: true
-    },
-    chapterContent: {
-      type: [lectureSchema],
-      default: []
-    }
+    chapterId: String,
+    chapterOrder: Number,
+    chapterTitle: String,
+    chapterContent: [lectureSchema],
   },
   { _id: false }
 );
 
-/* ===============================
-   Course Schema
-=================================*/
-const courseSchema = new Schema(
+const courseSchema = new mongoose.Schema(
   {
-    courseTitle: {
-      type: String,
-      required: true,
-      trim: true
-    },
-    courseDescription: {
-      type: String,
-      required: true
-    },
-    courseThumbnail: {
-      type: String
-    },
-    coursePrice: {
-      type: Number,
-      required: true,
-      min: 0
-    },
-    isPublished: {
-      type: Boolean,
-      default: false
-    },
-    discount: {
-      type: Number,
-      min: 0,
-      max: 100,
-      default: 0
-    },
+    courseTitle: { type: String, required: true },
+    courseDescription: { type: String, required: true }, // ✅ IMPORTANT FIX
+    courseThumbnail: String,
 
-    /* Chapters */
-    courseContent: {
-      type: [chapterSchema],
-      default: []
-    },
+    coursePrice: { type: Number, required: true },
+    discount: { type: Number, default: 0 },
 
-    /* Ratings */
-   /* Ratings */
-courseRating: [
-  {
-    userId: {
-      type: String,   // ✅ changed
-      ref: "User"
-    },
-    rating: {
-      type: Number,
-      min: 1,
-      max: 5
-    }
-  }
-],
-    /* Educator */
+    courseContent: [chapterSchema],
+
+    courseRating: [
+      {
+        userId: String,
+        rating: Number,
+      },
+    ],
+
     educator: {
-  type: String,   // ✅ changed
-  ref: "User",
-  required: true
-},
+      type: String,
+      required: true,
+    },
 
-    /* data of Enrolled Students */
-   enrolledStudents: [
-  {
-    type: String,   // ✅ changed
-    ref: "User"
-  }
-]
+    enrolledStudents: [String],
   },
-  {
-    timestamps: true,
-    minimize: false
-  }
+  { timestamps: true }
 );
 
-const Course = mongoose.model("Course", courseSchema);
-
-export default Course;
+export default mongoose.model("Course", courseSchema);

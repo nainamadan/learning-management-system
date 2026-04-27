@@ -7,7 +7,17 @@ import humanizeDuration from "humanize-duration"
 import Footer from "../../components/student/Footer"
 import YouTube from "react-youtube"
 import { toast } from "react-toastify"
-import axios from "axios" // ✅ added
+import axios from "axios"
+
+// ✅ FIX: extract YouTube video ID
+const getVideoId = (url) => {
+  try {
+    const urlObj = new URL(url)
+    return urlObj.searchParams.get("v")
+  } catch {
+    return null
+  }
+}
 
 const CourseDetails = () => {
   const { id } = useParams()
@@ -20,45 +30,37 @@ const CourseDetails = () => {
     countlectures,
     currency,
     backendUrl,
-    // want data for purchase
     userData,
     getToken
   } = useContext(AppContext)
 
   const [coursedata, setcoursedata] = useState(null)
-  // toggle k liye
   const [openSection, setOpenSection] = useState({})
   const [playerdata, setplayerdata] = useState(null)
   const [enroll] = useState(false)
-  const [isAlreadyEnrolled, setIsAlreadyEnrolled] = useState(false) // ✅ added
+  const [isAlreadyEnrolled, setIsAlreadyEnrolled] = useState(false)
 
-  // fetch course
-  // ✅ Improved fetch course logic
-useEffect(() => {
-  const fetchCourse = async () => {
-  try {
-    const { data } = await axios.get(backendUrl + "/api/course/" + id);
-    
-    console.log("DEBUG: API Response ->", data); // <--- ADD THIS
+  useEffect(() => {
+    const fetchCourse = async () => {
+      try {
+        const { data } = await axios.get(backendUrl + "/api/course/" + id)
 
-    if (data.success) {
-      setcoursedata(data.coursedata);
-    } else {
-      console.error("DEBUG: Success was false", data.message);
-      setcoursedata(false);
+        console.log("DEBUG: API Response ->", data)
+
+        if (data.success) {
+          setcoursedata(data.coursedata)
+        } else {
+          setcoursedata(false)
+        }
+      } catch (error) {
+        console.error(error)
+        setcoursedata(false)
+      }
     }
-  } catch (error) {
-    console.error("DEBUG: Network Error", error);
-    setcoursedata(false);
-  }
-};
 
-  if (id) {
-    fetchCourse();
-  }
-}, [id, backendUrl]);
+    if (id) fetchCourse()
+  }, [id, backendUrl])
 
-  // buy course
   const enrollCourse = async () => {
     try {
       if (!userData) {
@@ -66,26 +68,21 @@ useEffect(() => {
         return
       }
 
-      // user has already enrolled
       if (isAlreadyEnrolled) {
         toast.warn("already enrolled")
         return
       }
 
-      // to make call api need token
       const token = await getToken()
 
       const { data } = await axios.post(
         backendUrl + "/api/user/purchase",
-        // provide ata in body
         { courseId: coursedata._id },
         { headers: { Authorization: `Bearer ${token}` } }
       )
 
       if (data.success) {
-        // user ko is urll pe bhejna h jispe vo payment kre
-        const { session_url } = data
-        window.location.replace(session_url)
+        window.location.replace(data.session_url)
       } else {
         toast.error(data.message)
       }
@@ -102,7 +99,6 @@ useEffect(() => {
     }
   }, [userData, coursedata])
 
-  // open first chapter
   useEffect(() => {
     if (coursedata?.courseContent?.length) {
       setOpenSection({ 0: true })
@@ -120,12 +116,11 @@ useEffect(() => {
 
   return (
     <div className="relative bg-gray-50">
-      {/* gradient */}
+
       <div className="absolute top-0 left-0 w-full h-[320px] bg-gradient-to-b from-cyan-100/70 to-white -z-10" />
 
       <div className="max-w-7xl mx-auto px-6 md:px-16 pt-16 flex flex-col lg:flex-row gap-12">
 
-        {/* LEFT CONTENT */}
         <div className="flex-1 text-gray-600">
 
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-gray-800">
@@ -139,7 +134,6 @@ useEffect(() => {
             }}
           />
 
-          {/* rating */}
           <div className="flex flex-wrap items-center gap-3 mt-4 text-sm">
             <span className="font-medium text-gray-800">
               {calculateRating(coursedata)}
@@ -161,7 +155,7 @@ useEffect(() => {
             </div>
 
             <span>
-              {coursedata.courseRatings?.length || 0} ratings
+              {coursedata.courseRating?.length || 0} ratings
             </span>
 
             <span>
@@ -176,7 +170,6 @@ useEffect(() => {
             </span>
           </p>
 
-          {/* COURSE STRUCTURE */}
           <div className="mt-10">
             <h2 className="text-xl font-semibold text-gray-800">
               Course Content
@@ -231,8 +224,7 @@ useEffect(() => {
                               <span
                                 onClick={() =>
                                   setplayerdata({
-                                    videoId:
-                                      lecture.lectureUrl.split("/").pop(),
+                                    videoId: getVideoId(lecture.lectureUrl),
                                   })
                                 }
                                 className="text-blue-600 cursor-pointer hover:underline"
@@ -259,7 +251,6 @@ useEffect(() => {
 
         </div>
 
-        {/* RIGHT SIDEBAR */}
         <div className="w-full lg:w-[360px]">
           <div className="bg-white border rounded-xl shadow-sm overflow-hidden sticky top-24">
 
@@ -278,15 +269,13 @@ useEffect(() => {
               </div>
             ) : (
               <img
-                src={coursedata.courseThumbnail}
+                src={coursedata.courseThumbnail || assets.course_1_thumbnail}
                 alt=""
                 className="w-full aspect-video object-cover"
               />
             )}
 
             <div className="p-6 space-y-5">
-
-              {/* enroll button */}
               <button
                 onClick={enrollCourse}
                 className={`w-full py-3 rounded-md text-white font-medium transition ${
@@ -299,8 +288,8 @@ useEffect(() => {
                   ? "Already Enrolled"
                   : "Enroll Now"}
               </button>
-
             </div>
+
           </div>
         </div>
 

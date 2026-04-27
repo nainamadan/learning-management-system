@@ -20,7 +20,7 @@ const CourseCard = ({ course }) => {
       {/* Course Thumbnail */}
       <img
         className='w-full h-40 object-cover'
-        src={course.courseThumbnail}
+        src={course.courseThumbnail || assets.course_1_thumbnail}
         alt="course"
       />
 
@@ -62,7 +62,7 @@ const CourseCard = ({ course }) => {
 
           {/* Total Ratings Count */}
           <p className='text-sm text-gray-500'>
-            ({course.courseRatings?.length || 0})
+            ({course.courseRating?.length || 0})
           </p>
         </div>
 
