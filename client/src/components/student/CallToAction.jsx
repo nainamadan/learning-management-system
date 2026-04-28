@@ -5,7 +5,7 @@ const CallToAction = (props) => {
     <div className='bg-blue-50 py-10 px-4'>
 
       {/* InterviewIQ Banner */}
-      <div className='max-w-2xl mx-auto bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-100 rounded-2xl px-6 py-8 text-center'>
+      <div className='max-w-2xl mx-auto bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-100 rounded-2xl pax-6 py-8 text-center'>
 
         <span className='inline-block bg-indigo-100 text-indigo-700 text-xs font-medium px-3 py-1 rounded-full mb-4 tracking-wide'>
           NEW — InterviewIQ
@@ -30,7 +30,7 @@ const CallToAction = (props) => {
 
         {/* Replace href with your actual Vercel URL */}
         <a
-          href="https://placeholder-interviewiq.vercel.app"
+          href="https://ai-interview-platform-8f4n.vercel.app/"
           target="_blank"
           rel="noopener noreferrer"
           className='inline-flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition'
