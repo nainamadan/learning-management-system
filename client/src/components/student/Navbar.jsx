@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useRef, useEffect } from "react";
 import { assets } from "../../assets/assets.js";
 import { Link, useLocation } from "react-router-dom";
 import { useClerk, UserButton, useUser } from "@clerk/clerk-react";
@@ -7,13 +7,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 
 const Navbar = () => {
-  const {
-    navigate,
-    isEducator,
-    backendUrl,
-    setIsEducator,
-    getToken,
-  } = useContext(AppContext);
+  const { navigate, isEducator, backendUrl, setIsEducator, getToken } = useContext(AppContext);
 
   const location = useLocation();
   const isCourseListPage = location.pathname.includes("/course-list");
@@ -21,25 +15,30 @@ const Navbar = () => {
   const { openSignIn } = useClerk();
   const { user } = useUser();
 
-  // Become Educator function
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const becomeEducator = async () => {
     try {
       if (isEducator) {
         navigate("/educator");
         return;
       }
-
       const token = await getToken();
-
-      const { data } = await axios.get(
-        backendUrl + "/api/educator/update-role",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
+      const { data } = await axios.get(backendUrl + "/api/educator/update-role", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (data.success) {
         setIsEducator(true);
         toast.success(data.message);
@@ -66,18 +65,18 @@ const Navbar = () => {
         className="w-28 lg:w-32 cursor-pointer"
       />
 
-      {/* Desktop Menu */}
+      {/* ── DESKTOP MENU (md and above) ── */}
       <div className="hidden md:flex items-center gap-5 text-gray-500">
         {user && (
           <>
-            <button onClick={becomeEducator}>
+            <button onClick={becomeEducator} className="hover:text-gray-800 transition">
               {isEducator ? "Educator Dashboard" : "Become Educator"}
             </button>
-
-            <Link to="/my-enrollments">My Enrollments</Link>
+            <Link to="/my-enrollments" className="hover:text-gray-800 transition">
+              My Enrollments
+            </Link>
           </>
         )}
-
         {user ? (
           <UserButton />
         ) : (
@@ -90,26 +89,59 @@ const Navbar = () => {
         )}
       </div>
 
-      {/* Mobile Menu */}
-      <div className="md:hidden flex items-center gap-2 sm:gap-5 text-gray-500">
-        <div className="flex items-center gap-1 sm:gap-2 max-sm:text-xs">
-          {user && (
-            <>
-              <button onClick={becomeEducator}>
-                {isEducator ? "Educator Dashboard" : "Become Educator"}
+      {/* ── MOBILE MENU (below md) ── */}
+      <div className="md:hidden flex items-center gap-3">
+
+        {/* Not logged in: user icon */}
+        {!user && (
+          <button onClick={() => openSignIn()} className="flex items-center">
+            <img src={assets.user_icon} alt="login" className="w-7 h-7" />
+          </button>
+        )}
+
+        {/* Logged in: UserButton + hamburger with correct options */}
+        {user && (
+          <>
+            <UserButton />
+
+            <div className="relative" ref={menuRef}>
+              {/* Hamburger button */}
+              <button
+                onClick={() => setMenuOpen((prev) => !prev)}
+                className="flex flex-col justify-center items-center w-9 h-9 rounded-md border border-gray-300 bg-white shadow-sm gap-1.5 cursor-pointer"
+                aria-label="Toggle menu"
+              >
+                <span className={`block w-5 h-0.5 bg-gray-700 transition-all duration-300 ${menuOpen ? "rotate-45 translate-y-2" : ""}`} />
+                <span className={`block w-5 h-0.5 bg-gray-700 transition-all duration-300 ${menuOpen ? "opacity-0" : ""}`} />
+                <span className={`block w-5 h-0.5 bg-gray-700 transition-all duration-300 ${menuOpen ? "-rotate-45 -translate-y-2" : ""}`} />
               </button>
 
-              <Link to="/my-enrollments">My Enrollments</Link>
-            </>
-          )}
-        </div>
-
-        {user ? (
-          <UserButton />
-        ) : (
-          <button onClick={() => openSignIn()}>
-            <img src={assets.user_icon} alt="" />
-          </button>
+              {/* Dropdown — only correct options */}
+              {menuOpen && (
+                <div className="absolute right-0 mt-2 w-52 bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden">
+                  <ul className="py-1 text-sm text-gray-700">
+                    <li>
+                      <button
+                        onClick={() => { becomeEducator(); setMenuOpen(false); }}
+                        className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors flex items-center gap-2"
+                      >
+                        🎓 {isEducator ? "Educator Dashboard" : "Become Educator"}
+                      </button>
+                    </li>
+                    <li>
+                      <Link
+                        to="/my-enrollments"
+                        onClick={() => setMenuOpen(false)}
+                        className="block px-4 py-3 hover:bg-gray-50 transition-colors flex items-center gap-2"
+                      >
+                        📚 My Enrollments
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+              )}
+            </div>
+          </>
         )}
       </div>
     </div>
