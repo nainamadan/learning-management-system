@@ -1,32 +1,46 @@
 import React from 'react'
-import { assets } from '../../assets/assets'
 
 const CallToAction = (props) => {
   return (
     <div className='bg-blue-50 py-10 px-4'>
-      
-      <div className='max-w-3xl mx-auto text-center'>
-        
-        <h1 className='text-xl sm:text-2xl md:text-3xl font-semibold text-gray-800'>
-          Learn anything, anytime, anywhere
-        </h1>
 
-        <p className='mt-3 text-gray-600 text-sm max-w-xl mx-auto'>
-          Our LMS makes learning easy and flexible, letting students learn at their own pace with expert-designed courses.
+      {/* InterviewIQ Banner */}
+      <div className='max-w-2xl mx-auto bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-100 rounded-2xl px-6 py-8 text-center'>
+
+        <span className='inline-block bg-indigo-100 text-indigo-700 text-xs font-medium px-3 py-1 rounded-full mb-4 tracking-wide'>
+          NEW — InterviewIQ
+        </span>
+
+        <h2 className='text-lg sm:text-xl font-semibold text-gray-800 mb-2'>
+          Crack your next interview with AI
+        </h2>
+
+        <p className='text-sm text-gray-500 max-w-md mx-auto mb-5'>
+          Practice mock interviews, get real-time feedback, and receive a detailed performance report — all powered by AI.
         </p>
 
-        <div className='mt-5 flex flex-col sm:flex-row gap-3 justify-center'>
-          
-          <button className='px-5 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition'>
-            Get started
-          </button>
-
-          <button className='px-5 py-2 border border-blue-600 text-blue-600 text-sm rounded-md flex items-center justify-center gap-2 hover:bg-blue-100 transition'>
-            Learn More
-            <img className='h-3' src={assets.arrow_icon} alt="arrow icon" />
-          </button>
-
+        {/* Feature chips */}
+        <div className='flex flex-wrap gap-2 justify-center mb-6'>
+          {['AI Mock Interviews', 'Performance Report', 'All Domains', 'Free to try'].map((chip) => (
+            <span key={chip} className='bg-white border border-gray-200 text-gray-500 text-xs px-3 py-1 rounded-full'>
+              {chip}
+            </span>
+          ))}
         </div>
+
+        {/* Replace href with your actual Vercel URL */}
+        <a
+          href="https://placeholder-interviewiq.vercel.app"
+          target="_blank"
+          rel="noopener noreferrer"
+          className='inline-flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition'
+        >
+          Try InterviewIQ
+          <svg className='w-4 h-4' fill='none' stroke='currentColor' strokeWidth={2} viewBox='0 0 16 16'>
+            <path strokeLinecap='round' strokeLinejoin='round' d='M3 8h10M9 4l4 4-4 4' />
+          </svg>
+        </a>
+
       </div>
 
     </div>
