@@ -1,26 +1,8 @@
 import multer from "multer";
-import fs from "fs";
 
-// Ensure uploads folder exists
-const uploadPath = "uploads/";
+// ✅ Memory storage — Render pe kaam karta hai
+const storage = multer.memoryStorage();
 
-if (!fs.existsSync(uploadPath)) {
-  fs.mkdirSync(uploadPath);
-}
-
-// STORAGE CONFIG
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadPath);
-  },
-
-  filename: function (req, file, cb) {
-    const uniqueName = Date.now() + "-" + file.originalname;
-    cb(null, uniqueName);
-  },
-});
-
-// FILE FILTER
 const fileFilter = (req, file, cb) => {
   if (file.mimetype.startsWith("image/")) {
     cb(null, true);
@@ -29,10 +11,6 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// UPLOAD
-const upload = multer({
-  storage,
-  fileFilter,
-});
+const upload = multer({ storage, fileFilter });
 
 export default upload;

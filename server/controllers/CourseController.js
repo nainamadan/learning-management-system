@@ -5,7 +5,9 @@ export const getAllCourse=async(req,resp)=>{
 try {
   // courses that are published will be displayed on web page and t remobve somedata from it
   // populate provide all info of user
-  const courses=await Course.find({isPublished:true}).select(['-courseContent','-enrolledStudents']).populate({path:'educator'})
+const courses = await Course.find({ isPublished: true })
+  .select(['-courseContent', '-enrolledStudents'])
+  .populate('educator', 'name image email') 
   resp.json({success:true,courses})
 } catch (error) {
   resp.json({success:false,message:error.message})

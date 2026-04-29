@@ -27,7 +27,7 @@ const courseSchema = new mongoose.Schema(
     courseTitle: { type: String, required: true },
     courseDescription: { type: String, required: true }, // ✅ IMPORTANT FIX
     courseThumbnail: String,
-
+  isPublished: { type: Boolean, default: true },
     coursePrice: { type: Number, required: true },
     discount: { type: Number, default: 0 },
 
@@ -40,10 +40,10 @@ const courseSchema = new mongoose.Schema(
       },
     ],
 
-    educator: {
-      type: String,
-      required: true,
-    },
+  educator: {
+  type: String,  // Clerk ID string hai isliye String type
+  ref: 'User'    // User model se reference
+},
 
     enrolledStudents: [String],
   },

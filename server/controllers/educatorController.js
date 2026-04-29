@@ -59,8 +59,16 @@ export const addCourse = async (req, resp) => {
 
     const parsed = JSON.parse(courseData);
 
-    const imageUpload = await cloudinary.uploader.upload(imageFile.path);
-
+    const imageUpload = await new Promise((resolve, reject) => {
+  const stream = cloudinary.uploader.upload_stream(
+    { folder: "thumbnails" },
+    (error, result) => {
+      if (error) reject(error);
+      else resolve(result);
+    }
+  );
+  stream.end(imageFile.buffer);
+});
     const newCourse = await Course.create({
       courseTitle: parsed.courseTitle,
       courseDescription: parsed.courseDescription,
