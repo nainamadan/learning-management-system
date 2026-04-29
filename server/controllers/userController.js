@@ -117,6 +117,7 @@ export const purchaseCourse = async (req, res) => {
       courseId: courseData._id,
       userId: userData._id,
       amount: amount.toFixed(2),
+      status: "completed",
     });
 
     // ⭐⭐⭐ IMPORTANT FIX (ENROLLMENT SAVE)
