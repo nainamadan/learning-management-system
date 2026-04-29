@@ -14,7 +14,7 @@ import { v2 as cloudinary } from "cloudinary";
 // ==============================
 export const updateRoleToEducator = async (req, resp) => {
   try {
-    const { userId } = req.auth();
+   const { userId } = req.auth;
 
     if (!userId) {
       return resp.status(401).json({
@@ -46,7 +46,7 @@ export const updateRoleToEducator = async (req, resp) => {
 // ==============================
 export const addCourse = async (req, resp) => {
   try {
-    const { userId } = req.auth();   // IMPORTANT
+   const { userId } = req.auth;  // IMPORTANT
     const { courseData } = req.body;
     const imageFile = req.file;
 
@@ -99,7 +99,7 @@ export const addCourse = async (req, resp) => {
 // ==============================
 export const getEducatorCourses = async (req, resp) => {
   try {
-    const { userId } = req.auth();
+    const { userId } = req.auth;
 
     const courses = await Course.find({ educator: userId });
 
@@ -121,7 +121,7 @@ export const getEducatorCourses = async (req, resp) => {
 // ==============================
 export const educatorDashboardData = async (req, resp) => {
   try {
-    const { userId } = req.auth();
+    const { userId } = req.auth;
 
     // 1. Get educator courses
     const courses = await Course.find({ educator: userId });
@@ -180,7 +180,7 @@ export const educatorDashboardData = async (req, resp) => {
 // ==============================
 export const getEnrolledStudentData = async (req, resp) => {
   try {
-    const { userId } = req.auth();
+   const { userId } = req.auth;
 
     const courses = await Course.find({ educator: userId });
 
