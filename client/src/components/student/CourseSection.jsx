@@ -18,7 +18,7 @@ const {allCourses}=useContext(AppContext)
   sm:grid-cols-2 
   md:grid-cols-3 
   lg:grid-cols-4  px-4 gap-4 md:px-0 md:my-16 my-10'>
-  {allCourses.slice(0,4).map((course,index)=><CourseCard key={index} course={course}/>)}
+  {(allCourses || []).slice(0,4).map((course,index)=><CourseCard key={index} course={course}/>)}
 </div>
       <Link to={'/course-list'} onClick= {()=>scrollTo(0,0)} className="text-gray-500 border  border-gray-500/30 px-10 py-3 rounded">Show all courses</Link>
     </div>

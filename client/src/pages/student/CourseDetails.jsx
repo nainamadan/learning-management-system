@@ -130,7 +130,7 @@ const CourseDetails = () => {
           <p
             className="pt-4 text-sm sm:text-base leading-relaxed"
             dangerouslySetInnerHTML={{
-              __html: coursedata.courseDescription?.slice(0, 200),
+              __html: (coursedata.courseDescription || "").slice(0, 200),
             }}
           />
 

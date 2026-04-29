@@ -17,7 +17,7 @@ const CoursesList = (props) => {
 
   useEffect(() => {
     if (allCourses && allCourses.length > 0) {
-      const tempcourses = allCourses.slice()
+    const tempcourses = Array.isArray(allCourses) ? allCourses.slice() : []
       input
         ? setFilteredCourse(
             tempcourses.filter(item =>
