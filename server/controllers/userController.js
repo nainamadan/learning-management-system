@@ -124,7 +124,9 @@ export const purchaseCourse = async (req, res) => {
     await User.findByIdAndUpdate(userId, {
       $addToSet: { enrolledCourses: courseId },
     });
-
+await Course.findByIdAndUpdate(courseId, {
+  $addToSet: { enrolledStudents: userId },
+});
     const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);
     const currency = process.env.CURRENCY.toLowerCase();
 

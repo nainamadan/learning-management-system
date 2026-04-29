@@ -93,7 +93,7 @@ const Dashboard = () => {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <img
-                        src={item.student.imageUrl}
+                        src={item.student.image}
                         className="w-8 h-8 rounded-full object-cover flex-shrink-0"
                       />
                       <span className="font-medium text-gray-700">
@@ -122,7 +122,8 @@ const Dashboard = () => {
 
               {/* Avatar */}
               <img
-                src={item.student.imageUrl}
+                src={item.student.image
+                }
                 className="w-10 h-10 rounded-full object-cover flex-shrink-0"
               />
 
