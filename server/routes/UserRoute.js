@@ -1,8 +1,8 @@
 import express from "express";
 import {getUserData,userEnrolledCourses,purchaseCourse,updateUserCourseProgress,getUserCourseProgress,addUserRating,createUser } from '../controllers/userController.js'
-
+import { clerkMiddleware, requireAuth } from "@clerk/express"; // ✅ add this
 const userRouter=express.Router();
-userRouter.post('/create-user', createUser);
+userRouter.post('/create-user', requireAuth(), createUser);
 // /api/user/data token headers
 
 userRouter.get('/data',getUserData)

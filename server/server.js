@@ -32,7 +32,13 @@ app.post("/stripe", express.raw({ type: "application/json" }), stripeWebHooks);
 // Normal Middlewares
 // ====================
 
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://learning-management-system-hazel-two.vercel.app"
+  ],
+  credentials: true
+}));
 app.use(express.json());
 app.use(clerkMiddleware());
 

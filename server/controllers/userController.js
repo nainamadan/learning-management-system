@@ -5,6 +5,7 @@ import { Purchase } from "../models/Purchase.js";
 import CourseProgress from "../models/CourseProgress.js";
 import Stripe from "stripe";
 
+
 export const createUser = async (req, res) => {
   try {
     console.log("CREATE USER ROUTE HIT");
@@ -58,7 +59,7 @@ export const createUser = async (req, res) => {
 // ================= GET USER DATA =================
 export const getUserData = async (req, res) => {
   try {
-    const { userId } = req.auth();
+    const { userId } = req.auth;
 
     const user = await User.findById(userId);
 
@@ -76,7 +77,7 @@ export const getUserData = async (req, res) => {
 // ================= USER ENROLLED COURSES =================
 export const userEnrolledCourses = async (req, res) => {
   try {
-    const { userId } = req.auth();
+    const { userId } = req.auth;
 
     const userData = await User.findById(userId).populate("enrolledCourses");
 
@@ -157,7 +158,7 @@ export const purchaseCourse = async (req, res) => {
 // ================= UPDATE COURSE PROGRESS =================
 export const updateUserCourseProgress = async (req, res) => {
   try {
-    const { userId } = req.auth();
+    const { userId } = req.auth;
     const { courseId, lectureId } = req.body;
 
     const progressData = await CourseProgress.findOne({
@@ -194,7 +195,7 @@ export const updateUserCourseProgress = async (req, res) => {
 // ================= GET COURSE PROGRESS =================
 export const getUserCourseProgress = async (req, res) => {
   try {
-    const { userId } = req.auth();
+   const { userId } = req.auth;
     const { courseId } = req.body;
 
     const progressData = await CourseProgress.findOne({
@@ -212,7 +213,7 @@ export const getUserCourseProgress = async (req, res) => {
 // ================= ADD USER RATING =================
 export const addUserRating = async (req, res) => {
   try {
-    const { userId } = req.auth();
+    const { userId } = req.auth;
     const { courseId, rating } = req.body;
 
     if (!courseId || !userId || !rating || rating < 1 || rating > 5) {
