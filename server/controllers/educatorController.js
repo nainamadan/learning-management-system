@@ -142,13 +142,17 @@ export const educatorDashboardData = async (req, resp) => {
     );
 
     // 3. Get enrolled students
-    const enrolledStudentsData = await Promise.all(
-      courses.map(async (course) => {
-        const students = await User.find(
-          { _id: { $in: course.enrolledStudents } },
-          "name image"   // ✅ FIXED (image not imageUrl)
-        );
-
+   const enrolledStudentsData = await Promise.all(
+  purchases.map(async (purchase) => {
+    const student = await User.findById(purchase.userId, "name image");
+    const course = await Course.findById(purchase.courseId, "courseTitle");
+    
+    return {
+      courseTitle: course?.courseTitle,
+      student,
+    };
+  })
+);
         return students.map((student) => ({
           courseTitle: course.courseTitle,
           student,
