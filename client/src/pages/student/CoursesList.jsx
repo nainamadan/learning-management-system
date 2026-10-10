@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useMemo } from 'react'
 import { assets } from "../../assets/assets.js"
 import { AppContext } from "../../context/AddContext.jsx"
 import SearchBar from "../../components/student/SearchBar.jsx"
@@ -6,27 +6,24 @@ import { useParams } from 'react-router-dom'
 import CourseCard from "../../components/student/CourseCard.jsx"
 import Footer from "../../components/student/Footer.jsx"
 
-const CoursesList = (props) => {
-  const { navigate, allCourses } = useContext(AppContext)
+const CoursesList = () => {
+  const {
+    navigate,
+    allCourses,
+    isCoursesLoading,
+    coursesError,
+    fetchAllCourses,
+  } = useContext(AppContext)
 
-  // take input
   const { input } = useParams()
-
-  // filtered data ..the thing we will search will get data acc to it
-  const [filteredCourse, setFilteredCourse] = useState([])
-
-  useEffect(() => {
-    if (allCourses && allCourses.length > 0) {
-    const tempcourses = Array.isArray(allCourses) ? allCourses.slice() : []
-      input
-        ? setFilteredCourse(
-            tempcourses.filter(item =>
-              item.courseTitle.toLowerCase().includes(input.toLowerCase())
-            )
-          )
-        : setFilteredCourse(tempcourses)
-    }
-  }, [allCourses, input])
+  const searchTerm = input?.trim().toLowerCase() || ""
+  const filteredCourses = useMemo(() => {
+    const courses = Array.isArray(allCourses) ? allCourses : []
+    return courses.filter(course =>
+      typeof course?.courseTitle === "string" &&
+      course.courseTitle.toLowerCase().includes(searchTerm)
+    )
+  }, [allCourses, searchTerm])
 
   return (
     <div className="relative bg-gray-50 min-h-screen flex flex-col">
@@ -55,7 +52,7 @@ const CoursesList = (props) => {
 
           {/* right part */}
           <div className="w-full md:w-[420px]">
-            <SearchBar data={input} />
+            <SearchBar key={input || 'all-courses'} data={input} />
           </div>
         </div>
 
@@ -83,10 +80,37 @@ const CoursesList = (props) => {
             gap-6
           "
         >
-          {filteredCourse.map((course, index) => (
-            <CourseCard key={index} course={course} />
+          {!isCoursesLoading && !coursesError && filteredCourses.map((course, index) => (
+            <CourseCard key={course._id || index} course={course} />
           ))}
         </div>
+
+        {isCoursesLoading && (
+          <p className="py-12 text-center text-gray-500" role="status">
+            Loading courses...
+          </p>
+        )}
+
+        {!isCoursesLoading && coursesError && (
+          <div className="py-12 text-center" role="alert">
+            <p className="text-gray-600">{coursesError}</p>
+            <button
+              type="button"
+              onClick={fetchAllCourses}
+              className="mt-4 rounded bg-blue-600 px-5 py-2 text-white hover:bg-blue-700"
+            >
+              Try again
+            </button>
+          </div>
+        )}
+
+        {!isCoursesLoading && !coursesError && filteredCourses.length === 0 && (
+          <p className="py-12 text-center text-gray-500">
+            {searchTerm
+              ? `No courses found for "${input}".`
+              : "No courses are available yet."}
+          </p>
+        )}
 
       </div>
 

@@ -1,6 +1,5 @@
 // this file will have all common logics state and functions
-import { createContext, useEffect, useState } from "react";
-import { dummyCourses } from "../assets/assets";
+import { createContext, useCallback, useEffect, useState } from "react";
 import {useNavigate, } from 'react-router-dom'
 import humanizeDuration from "humanize-duration";
 import {useAuth,useUser} from "@clerk/clerk-react"
@@ -17,6 +16,8 @@ const currency=import.meta.env.VITE_CURRENCY
 const navigate=useNavigate()
 // get all course data
 const[allCourses,setAllCourses]=useState([])
+const[isCoursesLoading,setIsCoursesLoading]=useState(true)
+const[coursesError,setCoursesError]=useState("")
 
 // iseducator will get diff nav bar
 const[isEducator,setIsEducator]=useState(false)
@@ -46,25 +47,30 @@ const fetchenrolledcourse=async()=>{
 }
 // url backend
 const backendUrl=import.meta.env.VITE_BACKEND_URL
-const fetchAllCourses=async()=>{
-  // setAllCourses(dummyCourses)
+const fetchAllCourses=useCallback(async()=>{
+  setIsCoursesLoading(true)
+  setCoursesError("")
+
   try {
-    const {data}=await axios.get(
-       // backend url
-      backendUrl + 
-      // remaining path
-      '/api/course/all'
-    )
-    if(data){
-    setAllCourses(data.courses)
-    }else{
-      // toastify
-     toast.error(data.message)
+    if (!backendUrl) {
+      throw new Error("Course service is not configured.")
     }
+
+    const {data}=await axios.get(`${backendUrl}/api/course/all`)
+    if (!data?.success || !Array.isArray(data.courses)) {
+      throw new Error(data?.message || "Unable to load courses.")
+    }
+
+    setAllCourses(data.courses)
   } catch (error) {
-    toast.error(error.message)
+    const message=error.response?.data?.message || error.message || "Unable to load courses."
+    setAllCourses([])
+    setCoursesError(message)
+    toast.error(message)
+  } finally {
+    setIsCoursesLoading(false)
   }
-}
+},[backendUrl])
 // create user in mongodb after clerk login
 const createUserInDB = async () => {
   if (!user) return;
@@ -118,23 +124,17 @@ if(data.success){
 }
 // execute the fn
 useEffect(()=>{
-  
   fetchAllCourses()
-  // fetchenrolledcourse()
-},[])
+},[fetchAllCourses])
 // fn to calculate average rating
 const calculateRating = (course) => {
-  if (!course?.courseRatings || course.courseRatings.length === 0) {
+  const ratings = Array.isArray(course?.courseRating) ? course.courseRating : []
+  if (ratings.length === 0) {
     return 0
   }
 
-  let totalRating = 0
-
-  course.courseRatings.forEach(rating => {
-    totalRating += rating.rating
-  })
-
-  return Math.floor(totalRating / course.courseRatings.length)
+  const totalRating = ratings.reduce((total, rating) => total + Number(rating.rating || 0), 0)
+  return Math.floor(totalRating / ratings.length)
 }
 
 
@@ -204,7 +204,7 @@ useEffect(() => {
 
   const value={
     // to access these thing in other component
-currency,allCourses,navigate,calculateRating,isEducator,setIsEducator,countlectures,calculateCourseTime,calculatelectureTime,enrolledCourses,fetchenrolledcourse,
+currency,allCourses,isCoursesLoading,coursesError,navigate,calculateRating,isEducator,setIsEducator,countlectures,calculateCourseTime,calculatelectureTime,enrolledCourses,fetchenrolledcourse,
 backendUrl,userData,setuserData,getToken,fetchAllCourses
   }
   return (
