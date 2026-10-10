@@ -10,8 +10,8 @@ const SearchBar = ({data}) => {
   const onSearchHandler=(e)=>{
     // on submit prevent from loading
     e.preventDefault();
-    // navigate user with input given
-    navigate('/course-list/'+input)
+    const searchTerm = input.trim()
+    navigate(searchTerm ? `/course-list/${encodeURIComponent(searchTerm)}` : '/course-list')
   }
   return (
     
